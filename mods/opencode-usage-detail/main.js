@@ -113,36 +113,42 @@ export default class OpenCodeUsageDetail extends View {
               .child("Esc"),
           ),
       )
-      .when(shown, (el) =>
-        el.child(v_flex().gap(10).children(rows)).child(
-          div()
-            .text_color(t.dim)
-            .text_size(11)
-            .child(
-              snap?.period_ends_at
-                ? `Paid period ends ${stamp(snap.period_ends_at)} · ${countdown(
-                    snap.period_ends_at,
-                  )} left`
-                : "",
-            ),
-        ),
-      )
-      .when(!shown, (el) =>
-        el
-          .child(
-            div()
-              .text_color(t.blocked)
-              .font_semibold()
-              .child(String(snap?.error ?? "No reading yet.")),
-          )
-          .when(Boolean(snap?.action), (inner) =>
-            inner.child(div().text_color(t.muted).text_size(11.5).child(String(snap.action))),
-          )
-          .when(Boolean(snap?.failure), (inner) =>
-            inner.child(div().text_color(t.dim).text_size(10.5).child(String(snap.failure))),
+      // The middle scrolls, so a bigger UI font can never clip the footer.
+      .child(
+        v_flex()
+          .flex_1()
+          .min_h(0)
+          .gap(10)
+          .overflow_y_scrollbar()
+          .children(
+            shown
+              ? [
+                  v_flex().gap(10).children(rows),
+                  div()
+                    .text_color(t.dim)
+                    .text_size(11)
+                    .child(
+                      snap?.period_ends_at
+                        ? `Paid period ends ${stamp(snap.period_ends_at)} · ${countdown(
+                            snap.period_ends_at,
+                          )} left`
+                        : "",
+                    ),
+                ]
+              : [
+                  div()
+                    .text_color(t.blocked)
+                    .font_semibold()
+                    .child(String(snap?.error ?? "No reading yet.")),
+                  ...(snap?.action
+                    ? [div().text_color(t.muted).text_size(11.5).child(String(snap.action))]
+                    : []),
+                  ...(snap?.failure
+                    ? [div().text_color(t.dim).text_size(10.5).child(String(snap.failure))]
+                    : []),
+                ],
           ),
       )
-      .child(div().flex_1())
       .child(
         h_flex()
           .items_center()

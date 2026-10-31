@@ -99,7 +99,7 @@ export default class OpenCodeUsage extends View {
   }
 
   openDetails() {
-    openOverlay({ mod: DETAIL_MOD, kind: "dialog", width: 420, height: 288 });
+    openOverlay({ mod: DETAIL_MOD, kind: "dialog", width: 420, height: 320 });
   }
 
   render(cx) {

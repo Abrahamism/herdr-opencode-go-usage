@@ -25,7 +25,7 @@ Measured on the default dark theme: `foreground` `#eeeeef`, `dim` `#696a6d`,
 `muted` `#98999b`, `raised` `#2c2e31`, `popover` `#25272b`, `accent` `#96b2d7`.
 Every color is taken from `theme()` by name, so a light theme follows.
 
-**In the dialog** (420×288, `popover` background, 16px padding, 10px gaps): a
+**In the dialog** (420×320, `popover` background, 16px padding, 10px gaps): a
 header with `OpenCode Go` at 14px semibold, `plan go` in `dim` 11px and an `Esc`
 button on the right. Then one block per window: the label and its percentage on
 one line, a 388×5px meter under it (track `hover`, fill `accent` / `working` /
@@ -46,7 +46,7 @@ redraws every 60000ms only to move the countdowns. Nothing animates on a timer:
 the only motion is the refresh icon spinning (native, 900ms per turn) while a
 read is running.
 
-Clicking the chips opens the dialog as a plain dialog overlay, 420×288. Clicking
+Clicking the chips opens the dialog as a plain dialog overlay, 420×320, with a scrolling middle so a bigger UI font cannot clip the footer. Clicking
 the refresh icon, or `Refresh` in the dialog, starts a read in the bar; the
 dialog never reads by itself, it only re-renders when the shared snapshot
 changes, and its footer time updates with it. `Esc` or the header button closes
@@ -73,7 +73,7 @@ mods/opencode-usage-detail/ main.js, format.js, mod.json
 ```
 
 `mods/opencode-usage/mod.json` is `{"place": "none", "size": 28, "overlay":
-{"width": 420, "height": 288}}`; the detail mod's is the same with `width`/`height`
+{"width": 420, "height": 320}}`; the detail mod's is the same with `width`/`height`
 only. Both default-export a gpui-kit `View`; there is no other entry point.
 
 The bar uses `theme()`, `appHome()`, `exec()`, `setShared()`, `shared()` through
