@@ -23,6 +23,15 @@ Console's Go page uses.
 - **Real errors** — no login, expired session, wrong shape, no network: the bar
   shows `! OpenCode Go` and the dialog says what to do next.
 
+## The dialog
+
+![The detail dialog: dollars per window, exact reset times, the paid period end and the budget left this month](dialog.png)
+
+Click the numbers in the bar to open it. It shows what the bar has no room for:
+`$used of $limit` per window, the exact local reset time next to the countdown,
+when the paid period ends, and how much monthly budget is left. `Refresh` asks
+the bar to read again; `Esc` closes it.
+
 ## Requirements
 
 - Herdr, with mods (tested on the Herdr app 0.7.1 / herdr-core 0.9.5).

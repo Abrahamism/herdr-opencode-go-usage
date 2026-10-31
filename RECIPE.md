@@ -25,6 +25,8 @@ Measured on the default dark theme: `foreground` `#eeeeef`, `dim` `#696a6d`,
 `muted` `#98999b`, `raised` `#2c2e31`, `popover` `#25272b`, `accent` `#96b2d7`.
 Every color is taken from `theme()` by name, so a light theme follows.
 
+![The detail dialog](dialog.png)
+
 **In the dialog** (420×320, `popover` background, 16px padding, 10px gaps): a
 header with `OpenCode Go` at 14px semibold, `plan go` in `dim` 11px and an `Esc`
 button on the right. Then one block per window: the label and its percentage on
