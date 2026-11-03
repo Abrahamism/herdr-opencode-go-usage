@@ -160,6 +160,67 @@ def _window(key: str, label: str, bucket) -> dict | None:
     }
 
 
+def _minor_to_usd(block) -> float | None:
+    """Money from a minor-unit block such as {amount_minor, exponent}."""
+    if not isinstance(block, dict):
+        return None
+    minor = _number(block.get("amount_minor"))
+    if minor is None:
+        return None
+    exponent = _number(block.get("exponent"))
+    exponent = 2 if exponent is None else int(exponent)
+    if exponent < 0 or exponent > 8:
+        exponent = 2
+    return minor / (10 ** exponent)
+
+
+def _spend(payload) -> dict | None:
+    """The month's usage-credit spend: what a usage-billed account reports."""
+    block = payload.get("spend")
+    if not isinstance(block, dict):
+        return None
+    used = _minor_to_usd(block.get("used"))
+    limit = _minor_to_usd(block.get("limit"))
+    if used is None and limit is None:
+        return None
+    return {
+        "label": "month",
+        "used_usd": used,
+        "limit_usd": limit,
+        "percent": _number(block.get("percent")),
+        "severity": _text(block.get("severity")),
+        "enabled": block.get("enabled") is not False,
+    }
+
+
+def _extra_usage(payload) -> dict | None:
+    """The credit pool: minor units when the payload says so, dollars otherwise."""
+    block = payload.get("extra_usage")
+    if not isinstance(block, dict):
+        return None
+    exponent = _number(block.get("decimal_places"))
+    scale = 10 ** int(exponent) if exponent is not None and 0 <= exponent <= 8 else None
+
+    def amount(name):
+        value = _number(block.get(name))
+        if value is None:
+            return None
+        return value / scale if scale else value
+
+    used = amount("used_credits")
+    limit = amount("monthly_limit")
+    if block.get("is_enabled") is not True and used is None:
+        return None
+    return {
+        "label": "extra usage",
+        "used_usd": used,
+        "limit_usd": limit,
+        "percent": _number(block.get("utilization")),
+        "severity": None,
+        "enabled": block.get("is_enabled") is True,
+    }
+
+
 def normalize(payload, plan: str | None = None) -> dict:
     """Turn a usage payload into the normalized record the bar consumes."""
     if not isinstance(payload, dict):
@@ -183,13 +244,7 @@ def normalize(payload, plan: str | None = None) -> dict:
             if window:
                 windows.append(window)
 
-    money = None
-    extra = payload.get("extra_usage")
-    if isinstance(extra, dict):
-        used = _number(extra.get("used_credits"))
-        limit = _number(extra.get("monthly_limit"))
-        if extra.get("is_enabled") is True or used is not None:
-            money = {"label": "extra usage", "used_usd": used, "limit_usd": limit}
+    money = _spend(payload) or _extra_usage(payload)
 
     if not windows and money is None:
         raise Unavailable(
@@ -227,12 +282,14 @@ def render_text(record: dict, now: datetime | None = None) -> str:
         )
     money = record.get("money")
     if money:
-        used = f"${money['used_usd']:.2f}" if money.get("used_usd") is not None else "n/a"
+        used = f"${money['used_usd']:,.2f}" if money.get("used_usd") is not None else "n/a"
         limit = (
-            f"${money['limit_usd']:.2f}" if money.get("limit_usd") is not None else "no limit"
+            f"${money['limit_usd']:,.2f}" if money.get("limit_usd") is not None else "no limit"
         )
+        percent = money.get("percent")
+        share = f" ({percent:.0f}%)" if percent is not None else ""
         lines.append("")
-        lines.append(f"{money['label']}: used {used} of {limit}")
+        lines.append(f"{money['label']}: used {used} of {limit}{share}")
     return "\n".join(lines)
 
 

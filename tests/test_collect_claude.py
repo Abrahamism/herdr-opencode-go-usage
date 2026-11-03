@@ -243,6 +243,87 @@ class CredentialTest(unittest.TestCase):
         self.assertEqual(before, after)
 
 
+# The company account in this machine: enterprise, no plan windows, one monthly
+# credit pool. Real shape, values replaced by round numbers.
+PAYLOAD_SPEND = {
+    "five_hour": None,
+    "seven_day": None,
+    "limits": [],
+    "extra_usage": {
+        "is_enabled": True,
+        "monthly_limit": 15000,
+        "used_credits": 1250,
+        "currency": "USD",
+        "decimal_places": 2,
+    },
+    "spend": {
+        "used": {"amount_minor": 1250, "currency": "USD", "exponent": 2},
+        "limit": {"amount_minor": 15000, "currency": "USD", "exponent": 2},
+        "percent": 8,
+        "severity": "normal",
+        "enabled": True,
+    },
+}
+
+
+class SpendTest(unittest.TestCase):
+    """The monthly credit pool: minor units, not dollars."""
+
+    def test_spend_is_read_in_minor_units(self):
+        record = collect_claude.normalize(PAYLOAD_SPEND, "enterprise")
+        money = record["money"]
+        self.assertEqual(record["windows"], [])
+        self.assertEqual(money["label"], "month")
+        self.assertAlmostEqual(money["used_usd"], 12.50)
+        self.assertAlmostEqual(money["limit_usd"], 150.00)
+        self.assertEqual(money["percent"], 8.0)
+
+    def test_spend_wins_over_the_extra_usage_block(self):
+        # Both describe the same pool; only `spend` carries the exponent.
+        record = collect_claude.normalize(PAYLOAD_SPEND)
+        self.assertAlmostEqual(record["money"]["limit_usd"], 150.00)
+
+    def test_extra_usage_is_minor_units_when_it_declares_decimal_places(self):
+        record = collect_claude.normalize(
+            {
+                "extra_usage": {
+                    "is_enabled": True,
+                    "monthly_limit": 15000,
+                    "used_credits": 1250,
+                    "decimal_places": 2,
+                }
+            }
+        )
+        self.assertEqual(record["money"]["label"], "extra usage")
+        self.assertAlmostEqual(record["money"]["used_usd"], 12.50)
+        self.assertAlmostEqual(record["money"]["limit_usd"], 150.00)
+
+    def test_extra_usage_without_decimal_places_stays_in_dollars(self):
+        record = collect_claude.normalize(
+            {"extra_usage": {"is_enabled": True, "monthly_limit": 100.0, "used_credits": 12.5}}
+        )
+        self.assertAlmostEqual(record["money"]["limit_usd"], 100.0)
+        self.assertAlmostEqual(record["money"]["used_usd"], 12.5)
+
+    def test_rendered_money_groups_thousands_and_shows_the_percent(self):
+        payload = {
+            "spend": {
+                "used": {"amount_minor": 250000, "exponent": 2},
+                "limit": {"amount_minor": 1500000, "exponent": 2},
+                "percent": 16.67,
+                "enabled": True,
+            }
+        }
+        text = collect_claude.render_text(collect_claude.normalize(payload), now=NOW)
+        self.assertIn("used $2,500.00 of $15,000.00 (17%)", text)
+
+    def test_a_disabled_spend_block_is_still_reported(self):
+        payload = json.loads(json.dumps(PAYLOAD_SPEND))
+        payload["spend"]["enabled"] = False
+        record = collect_claude.normalize(payload)
+        self.assertFalse(record["money"]["enabled"])
+
+
 class MainTest(unittest.TestCase):
     """The CLI contract the mod consumes: exit code plus JSON on stdout."""
 
