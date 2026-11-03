@@ -91,8 +91,41 @@ export function usageColor(value, t) {
   return t.foreground;
 }
 
+// Grouped thousands, two decimals: $15,000.00, never $15000.00.
 export function money(value) {
-  return typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "?";
+  if (typeof value !== "number" || !Number.isFinite(value)) return "?";
+  const [whole, cents] = Math.abs(value).toFixed(2).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${value < 0 ? "-" : ""}$${grouped}.${cents}`;
+}
+
+export function moneyPercent(pool) {
+  if (!pool) return null;
+  if (typeof pool.percent === "number" && Number.isFinite(pool.percent)) return pool.percent;
+  const used = pool.used_usd;
+  const limit = pool.limit_usd;
+  if (
+    typeof used === "number" &&
+    Number.isFinite(used) &&
+    typeof limit === "number" &&
+    Number.isFinite(limit) &&
+    limit > 0
+  ) {
+    return (used / limit) * 100;
+  }
+  return null;
+}
+
+// A money pool drawn like a window, so both providers share one row language.
+export function moneyMeter(pool) {
+  return {
+    key: "spend",
+    label: String(pool?.label ?? "spend"),
+    percent: moneyPercent(pool),
+    resets_at: null,
+    used_usd: typeof pool?.used_usd === "number" ? pool.used_usd : null,
+    limit_usd: typeof pool?.limit_usd === "number" ? pool.limit_usd : null,
+  };
 }
 
 export function moneyPair(used, limit) {

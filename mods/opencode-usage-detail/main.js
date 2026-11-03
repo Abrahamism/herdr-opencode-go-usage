@@ -14,6 +14,7 @@ import {
   clockTime,
   countdown,
   meterPercent,
+  moneyMeter,
   moneyPair,
   providers,
   share,
@@ -69,25 +70,6 @@ function windowRow(meter, t) {
     .children(line ? [div().text_color(t.dim).text_size(11).child(line)] : []);
 }
 
-function moneyRow(money, t) {
-  return v_flex()
-    .gap(4)
-    .child(
-      h_flex()
-        .items_center()
-        .child(
-          div().text_color(t.foreground).font_semibold().child(String(money.label ?? "spent")),
-        )
-        .child(div().flex_1())
-        .child(
-          div()
-            .text_color(t.foreground)
-            .font_semibold()
-            .child(moneyPair(money.used_usd, money.limit_usd)),
-        ),
-    );
-}
-
 function section(provider, t) {
   const children = [
     h_flex()
@@ -118,7 +100,9 @@ function section(provider, t) {
   if (windows.length) {
     children.push(v_flex().gap(10).children(windows.map((meter) => windowRow(meter, t))));
   }
-  if (provider.money) children.push(moneyRow(provider.money, t));
+  // A money pool gets the same row language as a window, so `$150.00` always
+  // sits under a meter instead of only as a number in a line.
+  if (provider.money) children.push(windowRow(moneyMeter(provider.money), t));
   if (provider.period_ends_at) {
     children.push(
       div()

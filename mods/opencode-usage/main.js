@@ -7,8 +7,8 @@
 // only reads the helpers' normalized JSON.
 //
 // Clicking the numbers switches between the compact view (only the five-hour
-// window, the default) and the full one. The gauge icon opens the detail
-// dialog; the icon on the right re-reads both providers.
+// window, the default) and the full one. The gauge button opens the detail
+// dialog; the circular arrow re-reads both providers.
 
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
@@ -18,7 +18,9 @@ import {
   compact,
   countdown,
   meterPercent,
-  moneyPair,
+  money,
+  moneyPercent,
+  percentLabel,
   primaryWindow,
   providers,
   setCompact,
@@ -31,6 +33,8 @@ const TICK_MS = 60000;
 const HOSTS = ["python", "python3", "py"];
 const TITLE = "Usage";
 const MOD_DIR = "opencode-usage";
+// svg() resolves against the app config dir, so the `mods/` prefix is required.
+const MOD_PATH = `mods/${MOD_DIR}`;
 const DETAIL_MOD = "opencode-usage-detail";
 
 // The order here is the order in the bar. Each helper answers with its own JSON
@@ -169,7 +173,7 @@ export default class AgentUsage extends View {
   }
 
   openDetails() {
-    openOverlay({ mod: DETAIL_MOD, kind: "dialog", width: 440, height: 420 });
+    openOverlay({ mod: DETAIL_MOD, kind: "dialog", width: 440, height: 460 });
   }
 
   render(cx) {
@@ -177,28 +181,53 @@ export default class AgentUsage extends View {
     const list = providers();
     const small = compact();
 
-    const chip = (meter) =>
-      h_flex()
+    // One window: the label in dim, the share as the hero number, the countdown
+    // small and quiet.
+    const windowChip = (meter) => {
+      const percent = meterPercent(meter);
+      return h_flex()
         .gap(5)
         .items_center()
-        .child(div().text_color(t.dim).child(String(meter.label ?? "")))
+        .child(div().text_size(11).text_color(t.dim).child(String(meter.label ?? "")))
         .child(
-          div().text_color(usageColor(meterPercent(meter), t)).font_semibold().child(windowLabel(meter)),
-        )
-        .child(div().text_color(t.dim).child(meter.resets_at ? `(${countdown(meter.resets_at)})` : ""));
-
-    const moneyChip = (money) =>
-      h_flex()
-        .gap(5)
-        .items_center()
-        .child(div().text_color(t.dim).child(String(money.label ?? "spent")))
-        .child(
-          h_flex()
-            .gap(0)
-            .text_color(t.foreground)
+          div()
+            .text_size(12)
+            .text_color(usageColor(percent, t))
             .font_semibold()
-            .child(moneyPair(money.used_usd, money.limit_usd)),
+            .child(windowLabel(meter)),
+        )
+        .child(
+          div()
+            .text_size(11)
+            .text_color(t.dim)
+            .child(meter.resets_at ? `(${countdown(meter.resets_at)})` : ""),
         );
+    };
+
+    // A money pool reads left to right: what it is, what is spent (the hero),
+    // then the limit and the share, both quiet so $150.00 never reads as $15000.
+    const moneyChip = (pool) => {
+      const percent = moneyPercent(pool);
+      const children = [
+        div().text_size(11).text_color(t.dim).child(String(pool.label ?? "spend")),
+        div()
+          .text_size(12)
+          .text_color(usageColor(percent, t))
+          .font_semibold()
+          .child(money(pool.used_usd)),
+        div().text_size(11).text_color(t.dim).child("of"),
+        div().text_size(11).text_color(t.muted).child(money(pool.limit_usd)),
+      ];
+      if (percent !== null) {
+        children.push(
+          div()
+            .text_size(11)
+            .text_color(usageColor(percent, t))
+            .child(`(${percentLabel(percent)})`),
+        );
+      }
+      return h_flex().gap(4).items_center().children(children);
+    };
 
     const body = [];
     if (!list.length) {
@@ -220,19 +249,40 @@ export default class AgentUsage extends View {
         }
         const windows = Array.isArray(provider.windows) ? provider.windows : [];
         const shown = small ? [primaryWindow(provider)].filter(Boolean) : windows;
-        if (!shown.length && provider.money) {
-          body.push(moneyChip(provider.money));
-        }
         shown.forEach((meter, position) => {
           if (position) body.push(div().text_color(t.dim).child("·"));
-          body.push(chip(meter));
+          body.push(windowChip(meter));
         });
+        if (provider.money) {
+          if (shown.length) body.push(div().text_color(t.dim).child("·"));
+          body.push(moneyChip(provider.money));
+        }
       });
     }
 
-    const icon = svg(`${MOD_DIR}/refresh.svg`).size(12);
-    const gauge = svg(`${MOD_DIR}/gauge.svg`).size(13);
-    const mode = small ? "Show all windows" : "Show only the five-hour window";
+    // A quiet cue that the numbers expand: » when collapsed, « when expanded.
+    body.push(div().text_color(t.dim).child(small ? "»" : "«"));
+
+    const icon = svg(`${MOD_PATH}/refresh.svg`).size(12);
+    const gauge = svg(`${MOD_PATH}/gauge.svg`).size(13);
+    const button = (id, child, hint, handler) =>
+      h_flex()
+        .id(id)
+        .px(6)
+        .py(2)
+        .gap(4)
+        .items_center()
+        .rounded(5)
+        .bg(t.raised)
+        .border(1)
+        .border_color(t.border)
+        .cursor_pointer()
+        .text_color(t.muted)
+        .hover((s) => s.bg(t.hover))
+        .tooltip(hint)
+        .on_click(handler)
+        .child(child);
+
     return h_flex()
       .id("agent-usage-bar")
       .size_full()
@@ -245,17 +295,6 @@ export default class AgentUsage extends View {
       .text_size(11.5)
       .text_color(t.muted)
       .child(
-        h_flex()
-          .id("agent-usage-open")
-          .px(3)
-          .rounded(5)
-          .cursor_pointer()
-          .hover((s) => s.bg(t.raised))
-          .tooltip("Usage detail")
-          .on_click(() => this.openDetails())
-          .child(gauge),
-      )
-      .child(
         // The numbers are the toggle: compact shows the five-hour window only.
         h_flex()
           .id("agent-usage-details")
@@ -266,23 +305,19 @@ export default class AgentUsage extends View {
           .rounded(5)
           .cursor_pointer()
           .hover((s) => s.bg(t.raised))
-          .tooltip(mode)
+          .tooltip(small ? "Show every window" : "Show only the five-hour window")
           .on_click((_event, cx) => this.toggle(cx))
           .children(body),
       )
+      .child(div().flex_1())
+      .child(button("agent-usage-open", gauge, "Usage detail", () => this.openDetails()))
       .child(
-        h_flex()
-          .id("agent-usage-refresh")
-          .px(6)
-          .py(3)
-          .rounded(5)
-          .cursor_pointer()
-          .text_color(this.busy ? t.dim : t.muted)
-          .hover((s) => s.bg(t.raised))
-          .tooltip("Refresh now")
-          .on_click((_event, cx) => this.refresh(cx))
-          .child(this.busy ? icon.spin(900) : icon),
-      )
-      .child(div().flex_1());
+        button(
+          "agent-usage-refresh",
+          this.busy ? icon.spin(900) : icon,
+          "Refresh now",
+          (_event, cx) => this.refresh(cx),
+        ),
+      );
   }
 }
