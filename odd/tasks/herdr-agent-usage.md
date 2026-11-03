@@ -4,7 +4,7 @@ feature: herdr-agent-usage
 estatus: en_curso
 fecha_creacion: 2026-11-03
 actualizado: 2026-11-03
-siguiente: T2 — escribir collect_claude.py
+siguiente: T8 — verificar los números reales de Claude tras `claude auth login`
 modo: implementacion
 tags: [herdr, mods, uso, claude, opencode]
 ---
@@ -42,16 +42,20 @@ del repo no cambian en esta entrega.
 
 ## Tasks
 
-- [ ] **T1** — Doc ODD, espejo Engram y todo. Spec: S1-S7. Ruta: inline. Commit: `chore(odd): track agent usage`.
-- [ ] **T2** — `collect_claude.py`: token de Claude Code, endpoint de uso, normalizador con
-      porcentajes y dólares, errores accionables. Spec: S3-S5, S7. Ruta: inline. Commit: `feat(claude): read usage from the Claude Code session`.
-- [ ] **T3** — Barra: los dos proveedores en una sola lectura y el toggle compacto/completo. Spec: S1, S2, S6. Ruta: inline. Commit: `feat(bar): show Claude next to OpenCode with a compact 5h mode`.
-- [ ] **T4** — Diálogo de detalle con una sección por proveedor. Spec: S1, S2, S5. Ruta: inline. Commit: `feat(detail): one section per provider`.
-- [ ] **T5** — Pruebas del colector nuevo con payloads sintéticos (ventanas, dólares, buckets
-      nulos, sin sesión). Spec: S3-S5, S7. Ruta: inline. Commit: `test(claude): cover the usage normalizer`.
-- [ ] **T6** — README, RECIPE y NOTAS-LOCALES al día; copia a `~/.config/herdr-app/mods/`. Spec: S1-S7. Ruta: inline. Commit: `docs: document the Claude provider and the compact mode`.
-- [ ] **T7** — Verificación: `unittest`, `herdr-app check`, lectura real de OpenCode y el estado
-      real de Claude en esta máquina. Spec: S1-S7. Ruta: inline. Commit: `—`.
+- [x] **T1** — Doc ODD, espejo Engram y todo. Spec: S1-S7. Ruta: inline. Commit: `03404c5`.
+- [x] **T2** — `collect_claude.py`: token de Claude Code, endpoint de uso, normalizador con
+      porcentajes y dólares, errores accionables. Spec: S3-S5, S7. Ruta: inline. Commit: `82c0728`.
+- [x] **T3** — Barra: los dos proveedores en una sola lectura y el toggle compacto/completo. Spec: S1, S2, S6. Ruta: inline. Commit: `087a380`.
+- [x] **T4** — Diálogo de detalle con una sección por proveedor. Spec: S1, S2, S5. Ruta: inline. Commit: `087a380`.
+- [x] **T5** — Pruebas del colector nuevo con payloads sintéticos (ventanas, dólares, buckets
+      nulos, sin sesión). Spec: S3-S5, S7. Ruta: inline. Commit: `92c86bc`.
+- [x] **T6** — README, RECIPE y NOTAS-LOCALES al día; copia a `~/.config/herdr-app/mods/`. Spec: S1-S7. Ruta: inline. Commit: `dc4d30f`.
+- [x] **T7** — Verificación: `unittest` (29 pruebas), `herdr-app check` en las dos carpetas
+      (instalada y fuente), lectura real de OpenCode, captura de la barra en compacto y en
+      completo, y del diálogo con las dos secciones. Spec: S1-S7. Ruta: inline. Commit: `—`.
+- [ ] **T8** — Confirmar los números reales de Claude: requiere que Ismael corra
+      `claude auth login` con la cuenta de la empresa. Hasta entonces la barra muestra `! Claude`
+      con el paso siguiente y el diálogo lo explica. Spec: S3, S5, S7. Ruta: inline.
 
 ## Log
 
@@ -71,3 +75,14 @@ del repo no cambian en esta entrega.
   (`cachedUsageUtilization`) trae `five_hour`/`seven_day` con `utilization`, los campos
   `used_dollars`/`limit_dollars`/`remaining_dollars`, un arreglo `limits` con `kind`
   (`session`, `weekly_all`) y un bloque `extra_usage`. Ese payload es el fixture real de T5.
+- **L4** — Cortes de commit (slices) en la rama `feat/claude-usage-and-compact-bar`, con una
+  desviación consciente del objetivo de ~400 líneas: (a) el par barra+diálogo va en un solo
+  commit porque comparten el contrato del snapshot y partirlo deja el diálogo roto; (b) el
+  colector nuevo y sus pruebas van en commits separados en vez de uno de ~700 líneas. Cortes:
+  `03404c5` trackeo, `82c0728` colector, `92c86bc` pruebas, `087a380` barra+diálogo, `dc4d30f` docs.
+- **L5** — Verificación observada (2026-11-03): `python -m unittest discover -s tests` → 29 pruebas
+  OK; `herdr-app check` en las dos carpetas (fuente e instaladas) → `check passed`;
+  `herdr-app status` → `errors: []`; lectura real de OpenCode con tres ventanas;
+  captura de la barra en compacto (`OpenCode 5h <1% (4h 50m) · Claude !`), en completo
+  (`5h · week · month`) y del diálogo con las dos secciones y el error accionable de Claude.
+  `NOTAS-LOCALES.md` está en `.gitignore` a propósito: se actualizó en disco, no se commitea.
