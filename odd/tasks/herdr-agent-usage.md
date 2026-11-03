@@ -4,7 +4,7 @@ feature: herdr-agent-usage
 estatus: en_curso
 fecha_creacion: 2026-11-03
 actualizado: 2026-11-03
-siguiente: T8 — verificar los números reales de Claude tras `claude auth login`
+siguiente: — (nada abierto; verificación pendiente solo si Ismael pide publicar)
 modo: implementacion
 tags: [herdr, mods, uso, claude, opencode]
 ---
@@ -53,9 +53,13 @@ del repo no cambian en esta entrega.
 - [x] **T7** — Verificación: `unittest` (29 pruebas), `herdr-app check` en las dos carpetas
       (instalada y fuente), lectura real de OpenCode, captura de la barra en compacto y en
       completo, y del diálogo con las dos secciones. Spec: S1-S7. Ruta: inline. Commit: `—`.
-- [ ] **T8** — Confirmar los números reales de Claude: requiere que Ismael corra
-      `claude auth login` con la cuenta de la empresa. Hasta entonces la barra muestra `! Claude`
-      con el paso siguiente y el diálogo lo explica. Spec: S3, S5, S7. Ruta: inline.
+- [x] **T8** — Confirmar los números reales de Claude. Hecho: la cuenta de la empresa
+      (`ismael.rodriguezr@rappi.com`, `enterprise`) reporta el bloque `spend`; el dato ya sale en la
+      barra. Spec: S3, S5, S7. Ruta: inline. Commit: `—`.
+- [x] **T9** — Corregir el escalado del dinero (`spend` en unidades menores, `extra_usage` con
+      `decimal_places`) y la tipografía de los montos. Spec: S3, S5. Ruta: inline. Commit: `—`.
+- [x] **T10** — Botones de detalle y refresco visibles (prefijo `mods/` en la ruta del SVG) y
+      diálogo con alto suficiente para la fila de dinero. Spec: S1, S2. Ruta: inline. Commit: `—`.
 
 ## Log
 
@@ -86,3 +90,19 @@ del repo no cambian en esta entrega.
   captura de la barra en compacto (`OpenCode 5h <1% (4h 50m) · Claude !`), en completo
   (`5h · week · month`) y del diálogo con las dos secciones y el error accionable de Claude.
   `NOTAS-LOCALES.md` está en `.gitignore` a propósito: se actualizó en disco, no se commitea.
+- **L6** — "ya veo que me da el dato, solo que hay que mejorar el texto mostrado, se ve raro
+  ese numero, en este caso 150 dolares y ahi se ven como 15000, hay que mejorar la tipografia e
+  igual acomodar o ajustar que salga el cuadro con detalle que antes teniamos, YA NO SALE,
+  Sumado a eso corrigue el boton de update, no se ve".
+  Evidencia: la cuenta es `ismael.rodriguezr@rappi.com`, plan `enterprise`, y el payload no trae
+  ventanas (`five_hour`/`seven_day` nulos, `limits: []`), solo
+  `spend: {used: {amount_minor: 0, exponent: 2}, limit: {amount_minor: 15000, exponent: 2}}`,
+  o sea **$150.00** de tope mensual de créditos. Causas: (1) el colector leía
+  `extra_usage.monthly_limit` (15000, centavos según `decimal_places: 2`) como dólares e ignoraba
+  `spend`; (2) `money()` no agrupaba miles y el monto y el límite iban los dos en semibold, así
+  que `$0.00 of $15000.00` se leía como un solo número; (3) al reescribir la barra se perdió el
+  prefijo `mods/` en la ruta del SVG, así que los botones de detalle y refresco salían como cajas
+  vacías (el diálogo sí abría por comando); (4) con la fila de dinero nueva, la última línea de
+  Claude quedaba debajo del scroll a 420 px de alto. Arreglado y verificado con capturas: barra
+  `Claude month $0.00 of $150.00 (0%)`, botones con ícono, diálogo a 440×460 con las dos secciones
+  completas. 35 pruebas OK.
