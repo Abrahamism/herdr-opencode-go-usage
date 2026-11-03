@@ -15,9 +15,10 @@ is estimated: the numbers are the providers' own meters.
 **In the bar** (28px tall, full width of the block it is given, left to right):
 two 13px buttons — the gauge that opens the dialog, then the circular arrow that
 re-reads both providers — and only then the data: one group per provider
-separated by a `dim` middle dot. A group is the provider name at 11.5px semibold
-in `foreground` followed by its chips: `OpenCode 5h 1% (1h 5m) · Claude 5h 12%
-(3h 40m)` in compact mode, `OpenCode 5h 1% · week 7% · month 19% · Claude 5h ·
+separated by a `dim` middle dot. A group opens with the provider's mark, a 13px
+`foreground` SVG (`opencode.svg`, `claude.svg`) whose tooltip carries the name and
+the plan, followed by its chips: `[O] 5h 1% (1h 5m) · [✳] 5h 12% (3h 40m)` in
+compact mode, `OpenCode 5h 1% · week 7% · month 19% · Claude 5h ·
 week · opus · sonnet` in full mode. Inside a chip the window label is `dim`, the
 headline number is semibold (a percentage, or the dollars spent when the account
 bills by use), and the countdown is `dim` in parentheses. A percentage at or
@@ -194,6 +195,10 @@ them with the text color.
   returns 401 for anything but a live Claude Code token. Treat every 401 as "sign
   in again", never as "retry later".
 
+- **`svg()` is a tinted mask, `image()` keeps colours.** Provider marks are drawn
+  with `svg()` so they follow the theme; a full-colour logo would need `image()`,
+  and opencode's near-black mark would then vanish on a dark bar. Marks are from
+  Simple Icons (CC0 1.0) and stay trademarks of their owners.
 - **`svg()` paths need the `mods/` prefix.** Paths resolve against the app config
   directory, so `mods/opencode-usage/gauge.svg` draws and
   `opencode-usage/gauge.svg` silently renders an empty box: a button that looks

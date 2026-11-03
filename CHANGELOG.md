@@ -7,6 +7,22 @@ All notable changes to this mod are documented here. The format follows
 The two mod folders (`opencode-usage`, `opencode-usage-detail`) ship together and
 share one version.
 
+## [Unreleased]
+
+### Changed
+
+- Each provider is drawn as its **mark instead of its name**, monochrome so it
+  follows the theme. The name and the plan stay one hover away in the tooltip,
+  and screen readers get the name through `accessibility_label`.
+- New `opencode.svg` and `claude.svg` in the bar folder; a provider without a
+  mark still falls back to its name.
+
+### Notes
+
+- Brand marks come from [Simple Icons](https://simpleicons.org) (CC0 1.0).
+  OpenCode, Claude and Anthropic are trademarks of their respective owners; this
+  mod is not affiliated with them and does not imply endorsement.
+
 ## [0.2.0] — 2026-11-03
 
 Claude joins the bar, and the bar learns to show less.

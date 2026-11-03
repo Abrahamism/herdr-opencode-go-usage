@@ -17,8 +17,10 @@ uses.
 
 ## What you get
 
-- **One chip group per provider**, separated by a middle dot:
-  `OpenCode 5h 1% (1h 5m) · Claude 5h 12% (3h 40m)`.
+- **One chip group per provider**, separated by a middle dot, introduced by the
+  provider's own mark instead of its name: `[O] 5h 1% (1h 5m) · [✳] 5h 12%
+  (3h 40m)`. The mark is a monochrome mask, so it follows the theme; hovering it
+  names the provider and its plan.
 - **Compact and full views.** Compact (the default) shows only each provider's
   five-hour window. One click on the numbers shows everything:
   `5h · week · month` for OpenCode, `5h · week · opus · sonnet` for Claude. The
@@ -229,4 +231,7 @@ the traps above, enough for an agent to rebuild it from an empty folder.
 
 ## License
 
-MIT. Not affiliated with opencode, Anthropic or Herdr.
+MIT. Not affiliated with opencode, Anthropic or Herdr, and nothing here implies
+their endorsement. The provider marks in `mods/opencode-usage/{opencode,claude}.svg`
+come from [Simple Icons](https://simpleicons.org) (CC0 1.0); the names and marks
+belong to their respective owners.

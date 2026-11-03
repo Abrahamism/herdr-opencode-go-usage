@@ -38,11 +38,17 @@ const MOD_PATH = `mods/${MOD_DIR}`;
 const DETAIL_MOD = "opencode-usage-detail";
 
 // The order here is the order in the bar. Each helper answers with its own JSON
-// and may also answer with a readable error; both are normalized below.
+// and may also answer with a readable error; both are normalized below. `logo`
+// is the file in this folder drawn in place of the provider name.
 const SOURCES = [
-  { id: "opencode-go", name: "OpenCode", helper: "collect.py" },
-  { id: "claude", name: "Claude", helper: "collect_claude.py" },
+  { id: "opencode-go", name: "OpenCode", helper: "collect.py", logo: "opencode.svg" },
+  { id: "claude", name: "Claude", helper: "collect_claude.py", logo: "claude.svg" },
 ];
+
+function logoFor(id) {
+  const source = SOURCES.find((candidate) => candidate.id === id);
+  return source ? source.logo : null;
+}
 
 function failed(source, error, code, action, detail) {
   return {
@@ -236,12 +242,28 @@ export default class AgentUsage extends View {
     } else {
       list.forEach((provider, index) => {
         if (index) body.push(div().text_color(t.dim).child("·"));
-        body.push(
-          div()
-            .text_color(t.foreground)
-            .font_semibold()
-            .child(String(provider.name ?? provider.id ?? "")),
-        );
+        // The mark instead of the name: a tooltip keeps the name one hover away.
+        const logo = logoFor(provider.id);
+        const hint = [provider.name, provider.plan].filter(Boolean).join(" · ");
+        if (logo) {
+          body.push(
+            h_flex()
+              .id(`agent-usage-logo-${provider.id}`)
+              .items_center()
+              .text_color(t.foreground)
+              .tooltip(hint)
+              .accessibility_label(String(provider.name ?? provider.id ?? ""))
+              .child(svg(`${MOD_PATH}/${logo}`).size(13)),
+          );
+        } else {
+          body.push(
+            div()
+              .text_color(t.foreground)
+              .font_semibold()
+              .tooltip(hint)
+              .child(String(provider.name ?? provider.id ?? "")),
+          );
+        }
         if (provider.error) {
           const hint = [provider.error, provider.action].filter(Boolean).join("\n");
           body.push(div().text_color(t.blocked).font_semibold().child("!").tooltip(hint));

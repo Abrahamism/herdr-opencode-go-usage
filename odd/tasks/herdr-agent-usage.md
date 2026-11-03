@@ -1,10 +1,10 @@
 ---
 titulo: Consumo de Claude en la barra de uso de herdr, con modo compacto de 5 h
 feature: herdr-agent-usage
-estatus: cerrada
+estatus: en_curso
 fecha_creacion: 2026-11-03
 actualizado: 2026-11-03
-siguiente: — (cerrada; publicado como 0.2.0)
+siguiente: T13 — revisar los logos en la barra; publicar como 0.3.0 cuando Ismael lo pida
 modo: implementacion
 tags: [herdr, mods, uso, claude, opencode]
 ---
@@ -62,6 +62,12 @@ del repo no cambian en esta entrega.
       diálogo con alto suficiente para la fila de dinero. Spec: S1, S2. Ruta: inline. Commit: `—`.
 - [x] **T11** — Botones de detalle y refresco antes de los datos (el espaciador los empujaba al
       extremo derecho y dejaba un hueco grande). Spec: S1, S2. Ruta: inline. Commit: `—`.
+- [x] **T12** — Los logos de cada proveedor en lugar del nombre (`opencode.svg`, `claude.svg` de
+      Simple Icons, CC0), con tooltip y `accessibility_label` para no perder el nombre.
+      Spec: S1, S2. Ruta: inline. Commit: `—`.
+- [x] **T13** — Publicar como 0.3.0 cuando Ismael lo pida: **no se sube nada hasta entonces**.
+      La rama `feat/provider-logos` queda local; `main` sigue igual a `origin/main`.
+      Spec: —. Ruta: inline.
 
 ## Log
 
@@ -116,3 +122,8 @@ del repo no cambian en esta entrega.
   archivo o no se como seria donde indica los cambios". Publicado como **0.2.0**: `CHANGELOG.md`
   nuevo, capturas regeneradas a partir de la UI nueva, correo y nombre de la cuenta sustituidos por
   "cuenta corporativa" en este documento, tag `v0.2.0` en `main`.
+- **L9** — "duda, esto ya no se cargaria al repor, no por ahora seguro para un v3 si, pero por
+  ahora no... Hay manera de en vez de los nombres del servicio se coloque su logo? un svg o algo
+  asi". Decisión: nada se publica hasta que lo pida (la rama `feat/provider-logos` se queda
+  local); los logos ya están puestos, monocolor para que sigan el tema, y el nombre queda en el
+  tooltip y en `accessibility_label`.
