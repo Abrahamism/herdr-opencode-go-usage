@@ -294,6 +294,15 @@ export default class AgentUsage extends View {
       .border_color(t.border)
       .text_size(11.5)
       .text_color(t.muted)
+      .child(button("agent-usage-open", gauge, "Usage detail", () => this.openDetails()))
+      .child(
+        button(
+          "agent-usage-refresh",
+          this.busy ? icon.spin(900) : icon,
+          "Refresh now",
+          (_event, cx) => this.refresh(cx),
+        ),
+      )
       .child(
         // The numbers are the toggle: compact shows the five-hour window only.
         h_flex()
@@ -309,15 +318,6 @@ export default class AgentUsage extends View {
           .on_click((_event, cx) => this.toggle(cx))
           .children(body),
       )
-      .child(div().flex_1())
-      .child(button("agent-usage-open", gauge, "Usage detail", () => this.openDetails()))
-      .child(
-        button(
-          "agent-usage-refresh",
-          this.busy ? icon.spin(900) : icon,
-          "Refresh now",
-          (_event, cx) => this.refresh(cx),
-        ),
-      );
+      .child(div().flex_1());
   }
 }

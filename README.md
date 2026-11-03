@@ -26,10 +26,10 @@ uses.
   money pool instead of plan windows; the bar shows `month $0.00 of $150.00 (0%)`
   with grouped thousands rather than inventing a percentage. Values are read in
   minor units and scaled by the exponent the payload declares.
-- **A gauge icon that opens the detail dialog** (440×420): every window with its
-  meter bar, `$used of $limit`, the exact local reset time, and the extra-usage
-  pool when the account has one.
-- **A refresh icon** next to the numbers, spinning while the reads are in flight.
+- **Two buttons to the left of the numbers**, never after them: the gauge opens
+  the detail dialog (440×460) with every window, its meter bar, `$used of $limit`
+  and the exact local reset time; the circular arrow re-reads both providers and
+  spins while the reads are in flight.
 - **Real errors** — OpenCode without a Console login, Claude Code signed out,
   expired session, wrong shape, no network: the bar shows `! OpenCode` or
   `! Claude` and the dialog says what to do next. No stale numbers are shown as

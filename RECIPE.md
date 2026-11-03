@@ -13,7 +13,8 @@ is estimated: the numbers are the providers' own meters.
 ## What you see
 
 **In the bar** (28px tall, full width of the block it is given, left to right):
-a 13px gauge icon in `muted` that opens the dialog, then one group per provider
+two 13px buttons — the gauge that opens the dialog, then the circular arrow that
+re-reads both providers — and only then the data: one group per provider
 separated by a `dim` middle dot. A group is the provider name at 11.5px semibold
 in `foreground` followed by its chips: `OpenCode 5h 1% (1h 5m) · Claude 5h 12%
 (3h 40m)` in compact mode, `OpenCode 5h 1% · week 7% · month 19% · Claude 5h ·
@@ -21,7 +22,7 @@ week · opus · sonnet` in full mode. Inside a chip the window label is `dim`, t
 headline number is semibold (a percentage, or the dollars spent when the account
 bills by use), and the countdown is `dim` in parentheses. A percentage at or
 above 75 turns `working`, at or above 95 `blocked`, and between 0 and 1 it reads
-`<1%` (over 99 reads `>99%`). The chips group, the gauge and the refresh icon all
+`<1%` (over 99 reads `>99%`). The chips group, the gauge and the refresh button all
 highlight on hover. Background `chrome`, a 1px top border in `border`, and the
 refresh icon is a 12px circular arrow that spins while the reads are in flight.
 
@@ -58,7 +59,7 @@ spinning (native, 900ms per turn) while a read is running.
 per provider, the five-hour one; full shows every window. The choice is written
 to `localStorage["opencode-usage.compact"]` (`"1"` compact, `"0"` full) so it
 survives a restart, and `format.js` reads it through `compact()` / `setCompact()`.
-Clicking the gauge icon opens the dialog as a plain dialog overlay, 440×420, with
+Clicking the gauge icon opens the dialog as a plain dialog overlay, 440×460, with
 a scrolling middle so a bigger UI font cannot clip the footer. Clicking the
 refresh icon, or `Refresh` in the dialog, starts a read in the bar; the dialog
 never reads by itself, it only re-renders when the shared snapshot changes, and

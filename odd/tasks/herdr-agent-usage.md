@@ -60,6 +60,8 @@ del repo no cambian en esta entrega.
       `decimal_places`) y la tipografía de los montos. Spec: S3, S5. Ruta: inline. Commit: `—`.
 - [x] **T10** — Botones de detalle y refresco visibles (prefijo `mods/` en la ruta del SVG) y
       diálogo con alto suficiente para la fila de dinero. Spec: S1, S2. Ruta: inline. Commit: `—`.
+- [x] **T11** — Botones de detalle y refresco antes de los datos (el espaciador los empujaba al
+      extremo derecho y dejaba un hueco grande). Spec: S1, S2. Ruta: inline. Commit: `—`.
 
 ## Log
 
@@ -106,3 +108,6 @@ del repo no cambian en esta entrega.
   Claude quedaba debajo del scroll a 420 px de alto. Arreglado y verificado con capturas: barra
   `Claude month $0.00 of $150.00 (0%)`, botones con ícono, diálogo a 440×460 con las dos secciones
   completas. 35 pruebas OK.
+- **L7** — "ajusta los botones de ver consumo y refres para que salgan antes de los datos y no
+  despues. Ya que veo un espacio grande entre los botones y la informacion". La barra quedó con
+  `[aguja] [refrescar] [datos …]`, sin espaciador entre botones y números.
