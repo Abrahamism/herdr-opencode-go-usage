@@ -22,9 +22,10 @@ uses.
   `5h · week · month` for OpenCode, `5h · week · opus · sonnet` for Claude. The
   choice is remembered across restarts.
 - **Countdowns in the bar**, so you know whether to start that long task now.
-- **Percentages or dollars.** Claude accounts billed by use report dollars
-  instead of a percentage; the bar shows `$41.25 of $150.00` rather than
-  inventing a percentage.
+- **Percentages or dollars.** Claude accounts billed by use report a monthly
+  money pool instead of plan windows; the bar shows `month $0.00 of $150.00 (0%)`
+  with grouped thousands rather than inventing a percentage. Values are read in
+  minor units and scaled by the exponent the payload declares.
 - **A gauge icon that opens the detail dialog** (440×420): every window with its
   meter bar, `$used of $limit`, the exact local reset time, and the extra-usage
   pool when the account has one.
@@ -137,7 +138,15 @@ otherwise) and asks `GET https://api.anthropic.com/api/oauth/usage` with the
 (`session`, `weekly_all`, `weekly_opus`, `weekly_sonnet`) and the named buckets
 (`five_hour`, `seven_day`, …). Each window keeps its `utilization` when the
 account reports one and its `used_dollars` / `limit_dollars` when it bills by
-use; `extra_usage` becomes the extra-usage row in the dialog.
+use.
+
+A usage-billed account usually reports no windows at all, only a `spend` block
+for the month: `{"used": {"amount_minor": 1250, "exponent": 2}, "limit": {…}}`.
+Those numbers are **minor units**, so `amount_minor: 15000` with `exponent: 2` is
+**$150.00**, not $15,000.00. The same care applies to `extra_usage`, which
+arrives in minor units when it carries `decimal_places` and in dollars when it
+does not. `spend` wins over `extra_usage` when both are present, because only
+`spend` states its exponent.
 
 Both print a normalized record and exit `0`, or an error record with `windows: []`,
 `error`, `code` and `action` and exit `2` for a known condition (no login,
@@ -187,7 +196,7 @@ is the only knob worth turning.
 ## Development
 
 ```sh
-python -m unittest discover -s tests -v            # 29 offline tests
+python -m unittest discover -s tests -v            # 35 offline tests
 herdr-app check mods/opencode-usage                # bar
 herdr-app check mods/opencode-usage-detail         # dialog
 herdr-app check mods/opencode-usage-detail --print-spec   # what it built
@@ -205,6 +214,13 @@ Three things that will bite you if you refactor:
 - **`collect.py` keeps its name.** The folder id and the helper names are older
   than the Claude provider; renaming them would break every installed layout for
   no benefit.
+- **`svg()` paths need the `mods/` prefix.** A mod resolves SVG paths against the
+  app config directory, so `mods/opencode-usage/gauge.svg` draws and
+  `opencode-usage/gauge.svg` renders an empty box with no error anywhere. If a
+  button looks blank, check the path first.
+- **Money is never a bare float.** Group thousands (`$15,000.00`), keep the spent
+  amount as the only semibold figure, and put the limit in `muted`: two semibold
+  dollar amounts side by side read as one number.
 
 `RECIPE.md` is the full brief behind this mod: look, behaviour, data contract and
 the traps above, enough for an agent to rebuild it from an empty folder.

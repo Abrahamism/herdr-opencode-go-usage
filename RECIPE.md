@@ -127,10 +127,14 @@ calls `GET https://api.anthropic.com/api/oauth/usage` with
 a `limits` array with `kind` (`session`, `weekly_all`, `weekly_opus`,
 `weekly_sonnet`) and the named buckets (`five_hour`, `seven_day`, …). Each window
 keeps `utilization` when the account reports it and `used_dollars` /
-`limit_dollars` when it bills by use; `extra_usage` becomes `money`. `expiresAt`
-is read as milliseconds when it is at least 1e11 and as seconds otherwise; an
-expired session is reported as `expired` and never refreshed. It prints
-`{provider, title, plan, windows[...], money, updated}`.
+`limit_dollars` when it bills by use. `expiresAt` is read as milliseconds when it
+is at least 1e11 and as seconds otherwise; an expired session is reported as
+`expired` and never refreshed. A usage-billed account usually reports no windows
+and only a `spend` block, whose `{amount_minor, exponent}` pairs are **minor
+units**: `amount_minor: 15000` with `exponent: 2` is $150.00, not $15,000.00.
+`extra_usage` is minor units only when it carries `decimal_places`, and `spend`
+wins when both exist. It prints
+`{provider, title, plan, windows[...], money{label,used_usd,limit_usd,percent,severity,enabled}, updated}`.
 
 Both exit 0 with a reading, or 2 with `{windows: [], error, code, action}`.
 
@@ -189,6 +193,18 @@ them with the text color.
   returns 401 for anything but a live Claude Code token. Treat every 401 as "sign
   in again", never as "retry later".
 
+- **`svg()` paths need the `mods/` prefix.** Paths resolve against the app config
+  directory, so `mods/opencode-usage/gauge.svg` draws and
+  `opencode-usage/gauge.svg` silently renders an empty box: a button that looks
+  blank with no error is almost always this.
+- **Money is never a bare float.** `money()` groups thousands and keeps two
+  decimals; only the spent amount is semibold and the limit stays `muted`, else
+  `$0.00 of $150.00` reads as `15000`. Money pools are drawn as a window row
+  through `moneyMeter()`, so both providers share one row language.
+- **The dialog needs room for one row per window plus the money row.** At 420px
+  the last Claude line fell below the scroll fold; 440×460 fits two sections with
+  three windows each.
+
 ## Done when
 
 - `herdr-app check mods/opencode-usage` and `herdr-app check mods/opencode-usage-detail`
@@ -212,6 +228,7 @@ them with the text color.
 - Without a Console login the OpenCode group reads `! OpenCode` and the dialog
   names `/connect` as the next step; without a Claude Code session the Claude
   group reads `! Claude` and the dialog names `claude auth login`.
-- `python -m unittest discover -s tests -v` passes: 29 offline tests over
+- `python -m unittest discover -s tests -v` passes: 35 offline tests over
   synthetic data, including one per provider asserting a credential cannot reach
-  the rendered output.
+  the rendered output, and the minor-unit cases (`spend` and `extra_usage` with
+  `decimal_places`) that keep $150.00 from reading as $15,000.00.
