@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 NOTAS-LOCALES.md
+gpui-kit.d.ts
+jsconfig.json
