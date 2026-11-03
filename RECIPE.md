@@ -8,7 +8,7 @@ bills by use. The bar opens compact (one window per provider) and a click on the
 numbers shows every window; a gauge icon opens a dialog with the details. Nothing
 is estimated: the numbers are the providers' own meters.
 
-![Agent usage bar](preview.png)
+![Agent usage bar](card-0.3.0.png)
 
 ## What you see
 
@@ -31,7 +31,7 @@ Measured on the default dark theme: `foreground` `#eeeeef`, `dim` `#696a6d`,
 `muted` `#98999b`, `raised` `#2c2e31`, `popover` `#25272b`, `accent` `#96b2d7`.
 Every color is taken from `theme()` by name, so a light theme follows.
 
-![The detail dialog](dialog.png)
+![The detail dialog](dialog-0.3.0.png)
 
 **In the dialog** (440×420, `popover` background, 16px padding, 10px gaps): a
 header with `Usage` at 14px semibold and an `Esc` button on the right, then one

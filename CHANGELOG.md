@@ -17,6 +17,14 @@ share one version.
 - New `opencode.svg` and `claude.svg` in the bar folder; a provider without a
   mark still falls back to its name.
 
+### Fixed
+
+- The catalogue card kept showing the old title and preview: it reads the README's
+  first heading, its first paragraphs and its **first image**, and image caches key
+  on the URL. The screenshots are renamed with the version (`card-0.3.0.png`,
+  `preview-0.3.0.png`, `dialog-0.3.0.png`) so every cache sees a new URL, and the
+  card is a 1200×630 composition instead of a 1916×56 strip that rendered tiny.
+
 ### Notes
 
 - Brand marks come from [Simple Icons](https://simpleicons.org) (CC0 1.0).

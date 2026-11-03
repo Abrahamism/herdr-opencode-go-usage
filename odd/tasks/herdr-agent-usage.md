@@ -65,6 +65,9 @@ del repo no cambian en esta entrega.
 - [x] **T12** — Los logos de cada proveedor en lugar del nombre (`opencode.svg`, `claude.svg` de
       Simple Icons, CC0), con tooltip y `accessibility_label` para no perder el nombre.
       Spec: S1, S2. Ruta: inline. Commit: `—`.
+- [x] **T14** — Tarjeta 1200×630 para la ficha del catálogo y capturas renombradas con la
+      versión (`card-0.3.0.png`, `preview-0.3.0.png`, `dialog-0.3.0.png`) para romper la caché de
+      imágenes, que se indexa por URL. Spec: —. Ruta: inline. Commit: `—`.
 - [x] **T13** — Publicar como 0.3.0 cuando Ismael lo pida: **no se sube nada hasta entonces**.
       La rama `feat/provider-logos` queda local; `main` sigue igual a `origin/main`.
       Spec: —. Ruta: inline.
@@ -127,3 +130,9 @@ del repo no cambian en esta entrega.
   asi". Decisión: nada se publica hasta que lo pida (la rama `feat/provider-logos` se queda
   local); los logos ya están puestos, monocolor para que sigan el tema, y el nombre queda en el
   tooltip y en `accessibility_label`.
+- **L10** — "duda para actualizar el visual o las imagenes en herdr como seria?" con captura de la
+  ficha del catálogo mostrando el título y la miniatura viejas. La ficha no la dibuja herdr: toma
+  el `H1` del README, el primer párrafo, **la primera imagen** y las estrellas de GitHub. Como el
+  commit ya estaba publicado, lo que quedaba era caché: las imágenes se cachean por URL, así que
+  renombrarlas con la versión es lo que fuerza la actualización. Se agregó `card-0.3.0.png`
+  (1200×630) como primera imagen, para que la miniatura no sea una tira de 1916×56.

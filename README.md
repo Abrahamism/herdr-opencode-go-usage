@@ -9,7 +9,7 @@ the gauge opens a dialog with the details behind each number.
 
 **Version 0.2.0** · every change is listed in [CHANGELOG.md](CHANGELOG.md).
 
-![The bar showing OpenCode Go and Claude in compact mode](preview.png)
+![The bar with both providers, and the detail dialog](card-0.3.0.png)
 
 Nothing here is estimated: the OpenCode numbers are the plan's own meters, and
 the Claude numbers come from the same usage endpoint Claude Code's `/usage` view
@@ -21,6 +21,8 @@ uses.
   provider's own mark instead of its name: `[O] 5h 1% (1h 5m) · [✳] 5h 12%
   (3h 40m)`. The mark is a monochrome mask, so it follows the theme; hovering it
   names the provider and its plan.
+![The bar in compact mode: one window per provider](preview-0.3.0.png)
+
 - **Compact and full views.** Compact (the default) shows only each provider's
   five-hour window. One click on the numbers shows everything:
   `5h · week · month` for OpenCode, `5h · week · opus · sonnet` for Claude. The
@@ -41,7 +43,7 @@ uses.
 
 ## The dialog
 
-![The detail dialog: one section per provider](dialog.png)
+![The detail dialog: one section per provider](dialog-0.3.0.png)
 
 Click the numbers to switch views, the gauge to open this dialog. Each provider
 gets its own section; `Refresh` asks the bar to read both again, `Esc` closes it.
