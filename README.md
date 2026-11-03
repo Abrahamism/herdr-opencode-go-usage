@@ -7,6 +7,8 @@ dollars when the account bills by use). The bar opens in the compact view, one
 window per provider; clicking the numbers switches to every window, and clicking
 the gauge opens a dialog with the details behind each number.
 
+**Version 0.2.0** · every change is listed in [CHANGELOG.md](CHANGELOG.md).
+
 ![The bar showing OpenCode Go and Claude in compact mode](preview.png)
 
 Nothing here is estimated: the OpenCode numbers are the plan's own meters, and

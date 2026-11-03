@@ -1,10 +1,10 @@
 ---
 titulo: Consumo de Claude en la barra de uso de herdr, con modo compacto de 5 h
 feature: herdr-agent-usage
-estatus: en_curso
+estatus: cerrada
 fecha_creacion: 2026-11-03
 actualizado: 2026-11-03
-siguiente: — (nada abierto; verificación pendiente solo si Ismael pide publicar)
+siguiente: — (cerrada; publicado como 0.2.0)
 modo: implementacion
 tags: [herdr, mods, uso, claude, opencode]
 ---
@@ -54,7 +54,7 @@ del repo no cambian en esta entrega.
       (instalada y fuente), lectura real de OpenCode, captura de la barra en compacto y en
       completo, y del diálogo con las dos secciones. Spec: S1-S7. Ruta: inline. Commit: `—`.
 - [x] **T8** — Confirmar los números reales de Claude. Hecho: la cuenta de la empresa
-      (`ismael.rodriguezr@rappi.com`, `enterprise`) reporta el bloque `spend`; el dato ya sale en la
+      (cuenta corporativa, plan `enterprise`) reporta el bloque `spend`; el dato ya sale en la
       barra. Spec: S3, S5, S7. Ruta: inline. Commit: `—`.
 - [x] **T9** — Corregir el escalado del dinero (`spend` en unidades menores, `extra_usage` con
       `decimal_places`) y la tipografía de los montos. Spec: S3, S5. Ruta: inline. Commit: `—`.
@@ -96,7 +96,7 @@ del repo no cambian en esta entrega.
   ese numero, en este caso 150 dolares y ahi se ven como 15000, hay que mejorar la tipografia e
   igual acomodar o ajustar que salga el cuadro con detalle que antes teniamos, YA NO SALE,
   Sumado a eso corrigue el boton de update, no se ve".
-  Evidencia: la cuenta es `ismael.rodriguezr@rappi.com`, plan `enterprise`, y el payload no trae
+  Evidencia: la cuenta es corporativa (`enterprise`) y el payload no trae
   ventanas (`five_hour`/`seven_day` nulos, `limits: []`), solo
   `spend: {used: {amount_minor: 0, exponent: 2}, limit: {amount_minor: 15000, exponent: 2}}`,
   o sea **$150.00** de tope mensual de créditos. Causas: (1) el colector leía
@@ -111,3 +111,8 @@ del repo no cambian en esta entrega.
 - **L7** — "ajusta los botones de ver consumo y refres para que salgan antes de los datos y no
   despues. Ya que veo un espacio grande entre los botones y la informacion". La barra quedó con
   `[aguja] [refrescar] [datos …]`, sin espaciador entre botones y números.
+- **L8** — "ok, todo esto cargalo al repo publico, ya sabes que sin datos personales, este
+  vendria siendo una mejora o actualizacion asi que seria como otra version y eso. agrega el
+  archivo o no se como seria donde indica los cambios". Publicado como **0.2.0**: `CHANGELOG.md`
+  nuevo, capturas regeneradas a partir de la UI nueva, correo y nombre de la cuenta sustituidos por
+  "cuenta corporativa" en este documento, tag `v0.2.0` en `main`.
