@@ -7,7 +7,7 @@ dollars when the account bills by use). The bar opens in the compact view, one
 window per provider; clicking the numbers switches to every window, and clicking
 the gauge opens a dialog with the details behind each number.
 
-**Version 0.2.0** · every change is listed in [CHANGELOG.md](CHANGELOG.md).
+**Version 0.3.0** · every change is listed in [CHANGELOG.md](CHANGELOG.md).
 
 ![The bar with both providers, and the detail dialog](preview.png)
 

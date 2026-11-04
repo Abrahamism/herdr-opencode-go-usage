@@ -7,21 +7,27 @@ All notable changes to this mod are documented here. The format follows
 The two mod folders (`opencode-usage`, `opencode-usage-detail`) ship together and
 share one version.
 
-## [Unreleased]
+## [0.3.0] — 2026-11-03
+
+The bar speaks in marks instead of names, and the catalogue card becomes a
+designed page.
+
+### Added
+
+- `opencode.svg` and `claude.svg` in the bar folder, one per provider. A
+  provider without a mark still falls back to its name.
 
 ### Changed
 
+- Each provider is drawn as its **mark instead of its name**, monochrome so it
+  follows the theme. The name and the plan stay one hover away in the tooltip,
+  and screen readers get the name through `accessibility_label`.
 - The catalogue card moved to `preview.png` and became a designed 1600×1000
   page: a Herdr window with the bar docked at the bottom and the detail dialog
   open. herdr.dev reads `preview.png` from the repo root (herdr-app's `AGENTS.md`
   says so), and this README now points at the same file, so the card has one name
   everywhere. `card-0.3.0.png` is gone; the other screenshots keep their versioned
   names. The card is generated from `design/preview-card/01-docked-window.html`.
-- Each provider is drawn as its **mark instead of its name**, monochrome so it
-  follows the theme. The name and the plan stay one hover away in the tooltip,
-  and screen readers get the name through `accessibility_label`.
-- New `opencode.svg` and `claude.svg` in the bar folder; a provider without a
-  mark still falls back to its name.
 
 ### Fixed
 
@@ -33,11 +39,10 @@ share one version.
   for one Claude Code run instead. A token the API rejects is the separate
   `token_rejected`, whose next step checks `claude auth status` before suggesting
   a new login.
-- The catalogue card kept showing the old title and preview: it reads the README's
-  first heading, its first paragraphs and its **first image**, and image caches key
-  on the URL. The screenshots are renamed with the version (`card-0.3.0.png`,
-  `preview-0.3.0.png`, `dialog-0.3.0.png`) so every cache sees a new URL, and the
-  card is a 1200×630 composition instead of a 1916×56 strip that rendered tiny.
+- The catalogue card kept showing the old title and preview: image caches key on
+  the URL, so the screenshots carry the version (`preview-0.3.0.png`,
+  `dialog-0.3.0.png`) and the card lives at the one path the catalogue reads,
+  `preview.png`, instead of a 1916×56 strip that rendered tiny.
 
 ### Notes
 
