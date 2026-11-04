@@ -73,11 +73,12 @@ sets a color.
 `... .toggle` do what the clicks do. There are no global keys and no `keys.json`
 snippet is needed.
 
-Failures keep their reason and their provider: no Console login, an expired
-session (HTTP 401), a refused read (403), rate limiting (429), no network, a
-database that is not there, a response with no meters, Claude Code signed out,
-and a Claude response with nothing usable each produce a specific sentence and a
-next step, never a blank bar.
+Failures keep their reason and their provider: no Console login, a cold 8-hour
+access token whose sign-in still lives, a token the API rejected (HTTP 401), a
+refused read (403), rate limiting (429), no network, a database that is not
+there, a response with no meters, Claude Code signed out, and a Claude response
+with nothing usable each produce a specific sentence and a next step, never a
+blank bar.
 
 ## Built from
 
@@ -130,8 +131,13 @@ a `limits` array with `kind` (`session`, `weekly_all`, `weekly_opus`,
 `weekly_sonnet`) and the named buckets (`five_hour`, `seven_day`, …). Each window
 keeps `utilization` when the account reports it and `used_dollars` /
 `limit_dollars` when it bills by use. `expiresAt` is read as milliseconds when it
-is at least 1e11 and as seconds otherwise; an expired session is reported as
-`expired` and never refreshed. A usage-billed account usually reports no windows
+is at least 1e11 and as seconds otherwise, and it is never refreshed here: a
+stamp in the past means `token_stale` (the access token lives ~8 h and Claude
+Code renews it silently the next time it runs), which is deliberately **not**
+`not_signed_in` — `refreshTokenExpiresAt` is read to name the day the sign-in
+itself ends. A token this mod considered live that comes back 401 is
+`token_rejected`, and its next step asks for `claude auth status` before signing
+in again. A usage-billed account usually reports no windows
 and only a `spend` block, whose `{amount_minor, exponent}` pairs are **minor
 units**: `amount_minor: 15000` with `exponent: 2` is $150.00, not $15,000.00.
 `extra_usage` is minor units only when it carries `decimal_places`, and `spend`
@@ -229,12 +235,15 @@ them with the text color.
 - `python mods/opencode-usage/collect.py` prints the OpenCode windows and exits 0;
   with `--db /nonexistent` it exits 2 with a message and a next step, no
   traceback. `python mods/opencode-usage/collect_claude.py` exits 0 with a reading
-  when signed in, and exits 2 with `not_signed_in` and the `claude auth login`
-  next step when not.
+  when signed in, exits 2 with `not_signed_in` and the `claude auth login`
+  next step when not, and exits 2 with `token_stale` — naming the day the sign-in
+  ends and never asking to sign in again — when the 8-hour access token is cold.
 - Without a Console login the OpenCode group reads `! OpenCode` and the dialog
   names `/connect` as the next step; without a Claude Code session the Claude
   group reads `! Claude` and the dialog names `claude auth login`.
-- `python -m unittest discover -s tests -v` passes: 35 offline tests over
+- `python -m unittest discover -s tests -v` passes: 37 offline tests over
   synthetic data, including one per provider asserting a credential cannot reach
-  the rendered output, and the minor-unit cases (`spend` and `extra_usage` with
-  `decimal_places`) that keep $150.00 from reading as $15,000.00.
+  the rendered output, the minor-unit cases (`spend` and `extra_usage` with
+  `decimal_places`) that keep $150.00 from reading as $15,000.00, and the two
+  credential failures that must read differently (stale access token vs signed
+  out, and a token the API rejected).

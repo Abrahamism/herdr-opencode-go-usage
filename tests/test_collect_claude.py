@@ -12,8 +12,10 @@ import os
 import sys
 import tempfile
 import unittest
+import urllib.error
 from contextlib import redirect_stdout
 from datetime import datetime, timezone
+from unittest import mock
 
 sys.path.insert(
     0,
@@ -213,22 +215,52 @@ class CredentialTest(unittest.TestCase):
         self.assertEqual(token, "sk-ant-oat01-test")
         self.assertEqual(plan, "max")
 
-    def test_expired_session_in_milliseconds_asks_for_a_refresh(self):
+    def test_a_stale_access_token_is_not_a_signed_out_session(self):
+        """The 8-hour access token dies on its own; the sign-in does not."""
+        directory = self._config_dir(
+            {
+                "claudeAiOauth": {
+                    "accessToken": "sk-ant-oat01-test",
+                    "refreshToken": "sk-ant-ort01-test",
+                    "expiresAt": 1000000000000,
+                    "refreshTokenExpiresAt": 4102444800000,  # 2100-01-01 in milliseconds
+                }
+            }
+        )
+        with self.assertRaises(collect_claude.Unavailable) as ctx:
+            collect_claude.read_credentials(directory)
+        error = ctx.exception
+        self.assertEqual(error.code, "token_stale")
+        self.assertIn("access token", error.message)
+        self.assertIn("still valid", error.message)
+        self.assertNotIn("claude auth login", error.action)
+        self.assertIn("Claude Code", error.action)
+        self.assertIn("2100-01-01", error.action)
+
+    def test_a_stale_access_token_in_seconds_is_reported_the_same_way(self):
+        directory = self._config_dir(
+            {
+                "claudeAiOauth": {
+                    "accessToken": "sk-ant-oat01-test",
+                    "expiresAt": 1000000000,
+                    "refreshTokenExpiresAt": "4102444800000",  # written as text by Claude Code
+                }
+            }
+        )
+        with self.assertRaises(collect_claude.Unavailable) as ctx:
+            collect_claude.read_credentials(directory)
+        self.assertEqual(ctx.exception.code, "token_stale")
+        self.assertNotIn("claude auth login", ctx.exception.action)
+        self.assertIn("2100-01-01", ctx.exception.action)
+
+    def test_a_stale_token_without_a_refresh_deadline_still_says_the_session_lives(self):
         directory = self._config_dir(
             {"claudeAiOauth": {"accessToken": "sk-ant-oat01-test", "expiresAt": 1000000000000}}
         )
         with self.assertRaises(collect_claude.Unavailable) as ctx:
             collect_claude.read_credentials(directory)
-        self.assertEqual(ctx.exception.code, "expired")
-        self.assertIn("Claude Code", ctx.exception.action)
-
-    def test_expired_session_in_seconds_is_also_detected(self):
-        directory = self._config_dir(
-            {"claudeAiOauth": {"accessToken": "sk-ant-oat01-test", "expiresAt": 1000000000}}
-        )
-        with self.assertRaises(collect_claude.Unavailable) as ctx:
-            collect_claude.read_credentials(directory)
-        self.assertEqual(ctx.exception.code, "expired")
+        self.assertEqual(ctx.exception.code, "token_stale")
+        self.assertNotIn("claude auth login", ctx.exception.action)
 
     def test_reading_leaves_the_credential_file_untouched(self):
         directory = self._config_dir(
@@ -322,6 +354,27 @@ class SpendTest(unittest.TestCase):
         payload["spend"]["enabled"] = False
         record = collect_claude.normalize(payload)
         self.assertFalse(record["money"]["enabled"])
+
+
+class FetchTest(unittest.TestCase):
+    """A rejected token is not the same failure as a stale one."""
+
+    def _answer(self, code):
+        error = urllib.error.HTTPError(collect_claude.USAGE_URL, code, "rejected", None, None)
+        opener = mock.Mock()
+        opener.open.side_effect = error
+        return mock.patch.object(
+            collect_claude.urllib.request, "build_opener", lambda *args, **kwargs: opener
+        )
+
+    def test_a_rejected_token_points_at_auth_status_before_signing_in(self):
+        with self._answer(401):
+            with self.assertRaises(collect_claude.Unavailable) as ctx:
+                collect_claude.fetch_usage("sk-ant-oat01-test")
+        error = ctx.exception
+        self.assertEqual(error.code, "token_rejected")
+        self.assertIn("claude auth status", error.action)
+        self.assertNotIn("auth login", error.action)
 
 
 class MainTest(unittest.TestCase):

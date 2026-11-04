@@ -25,6 +25,14 @@ share one version.
 
 ### Fixed
 
+- A cold 8-hour access token no longer reads as a signed-out session. Claude Code
+  only renews that token when it runs, so after a night without it the bar said
+  "session expired" and pointed at `claude auth login` while `claude auth status`
+  still answered `loggedIn: true`. It is now `token_stale`, says the sign-in
+  itself is still valid, names the day it ends (`refreshTokenExpiresAt`) and asks
+  for one Claude Code run instead. A token the API rejects is the separate
+  `token_rejected`, whose next step checks `claude auth status` before suggesting
+  a new login.
 - The catalogue card kept showing the old title and preview: it reads the README's
   first heading, its first paragraphs and its **first image**, and image caches key
   on the URL. The screenshots are renamed with the version (`card-0.3.0.png`,

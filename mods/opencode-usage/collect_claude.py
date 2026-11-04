@@ -305,6 +305,33 @@ def default_config_dir() -> Path:
     return Path.home() / ".claude"
 
 
+def _refresh_deadline(oauth) -> str | None:
+    """The date the sign-in itself expires, from `refreshTokenExpiresAt`.
+
+    Claude Code writes it as a millisecond stamp; it may also appear as text.
+    """
+    raw = oauth.get("refreshTokenExpiresAt")
+    if isinstance(raw, str):
+        raw = raw.strip()
+        if not raw.isdigit():
+            return None
+        raw = int(raw)
+    expires = _number(raw)
+    if not expires:
+        return None
+    expires_ms = expires if expires >= 1e11 else expires * 1000
+    return datetime.fromtimestamp(expires_ms / 1000, timezone.utc).strftime("%Y-%m-%d")
+
+
+def _stale_action(oauth) -> str:
+    """What to do about a dead access token: nothing about signing in again."""
+    action = "Open Claude Code once so it renews that token, then press refresh."
+    deadline = _refresh_deadline(oauth)
+    if deadline:
+        return f"{action} The sign-in itself is good until {deadline}."
+    return f"{action} The sign-in itself is still valid."
+
+
 def read_credentials(config_dir=None) -> tuple[str, str | None]:
     """Return (access token, plan) from Claude Code's own credential file."""
     path = (Path(config_dir) if config_dir else default_config_dir()) / ".credentials.json"
@@ -339,10 +366,15 @@ def read_credentials(config_dir=None) -> tuple[str, str | None]:
         # Claude Code writes milliseconds; older builds wrote seconds.
         expires_ms = expires if expires >= 1e11 else expires * 1000
         if expires_ms <= time.time() * 1000:
+            # Two different things die here. The access token lives about 8
+            # hours and Claude Code renews it silently the next time it runs;
+            # the sign-in (the refresh token) lasts weeks. Calling this a
+            # signed-out session sent people to `claude auth login` while the
+            # CLI still said `loggedIn: true`.
             raise Unavailable(
-                "The Claude Code session expired.",
-                "expired",
-                "Open Claude Code once so it refreshes the session, or run `claude auth login`.",
+                "The Claude Code access token expired; the sign-in is still valid.",
+                "token_stale",
+                _stale_action(oauth),
             )
     return token, plan
 
@@ -373,10 +405,13 @@ def fetch_usage(token: str) -> dict:
             raw = response.read(MAX_BYTES + 1)
     except urllib.error.HTTPError as error:
         if error.code == 401:
+            # A token this mod considered live was still refused, so signing in
+            # again may be the answer — but only after checking it is needed.
             raise Unavailable(
-                "The Claude Code session is not valid anymore.",
-                "expired",
-                "Run `claude auth login` again to refresh the session.",
+                "api.anthropic.com rejected the Claude Code token.",
+                "token_rejected",
+                "Open Claude Code once and press refresh; if it still fails, run "
+                "`claude auth status` before signing in again.",
             ) from None
         if error.code == 403:
             raise Unavailable("The account refused access to its usage.", "forbidden")

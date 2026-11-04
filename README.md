@@ -37,7 +37,8 @@ uses.
   and the exact local reset time; the circular arrow re-reads both providers and
   spins while the reads are in flight.
 - **Real errors** — OpenCode without a Console login, Claude Code signed out,
-  expired session, wrong shape, no network: the bar shows `! OpenCode` or
+  an access token that went cold (the sign-in is still valid), a token the API
+  rejected, wrong shape, no network: the bar shows `! OpenCode` or
   `! Claude` and the dialog says what to do next. No stale numbers are shown as
   if they were current.
 
@@ -55,7 +56,10 @@ gets its own section; `Refresh` asks the bar to read both again, `Esc` closes it
   connected: in opencode run `/connect`, then `OpenCode Console account`. That
   login is what this reads; the inference API key in `auth.json` is not it.
 - **Claude:** Claude Code signed in on this machine (`claude auth login`). The
-  bar reads whichever account is signed in, and says so when there is none.
+  bar reads whichever account is signed in, and says so when there is none. The
+  token it reads lives about 8 hours: when Claude Code has not run since, the
+  group shows `!` and asks you to open Claude Code once — your sign-in is still
+  valid, so it never sends you to sign in again for that.
 - Python 3 on `PATH` as `python`, `python3` or `py`.
 
 ## Install
@@ -202,7 +206,7 @@ is the only knob worth turning.
 ## Development
 
 ```sh
-python -m unittest discover -s tests -v            # 35 offline tests
+python -m unittest discover -s tests -v            # 37 offline tests
 herdr-app check mods/opencode-usage                # bar
 herdr-app check mods/opencode-usage-detail         # dialog
 herdr-app check mods/opencode-usage-detail --print-spec   # what it built
