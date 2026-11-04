@@ -11,6 +11,12 @@ share one version.
 
 ### Changed
 
+- The catalogue card moved to `preview.png` and became a designed 1600×1000
+  page: a Herdr window with the bar docked at the bottom and the detail dialog
+  open. herdr.dev reads `preview.png` from the repo root (herdr-app's `AGENTS.md`
+  says so), and this README now points at the same file, so the card has one name
+  everywhere. `card-0.3.0.png` is gone; the other screenshots keep their versioned
+  names. The card is generated from `design/preview-card/01-docked-window.html`.
 - Each provider is drawn as its **mark instead of its name**, monochrome so it
   follows the theme. The name and the plan stay one hover away in the tooltip,
   and screen readers get the name through `accessibility_label`.

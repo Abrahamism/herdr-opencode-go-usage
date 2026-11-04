@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agent usage bar — card direction (docked window)</title>
+<style>
+  :root{
+    --bg:#07080a; --fg:#f4f6f8; --mute:#969eaa; --dim:#5f6773; --amber:#e8912a;
+    --sans:"Segoe UI Variable Display","Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+    --mono:"Cascadia Mono",Consolas,ui-monospace,SFMono-Regular,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1600px;height:1000px;overflow:hidden;background:var(--bg);color:var(--fg);
+    font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .card{position:relative;width:1600px;height:1000px;overflow:hidden;isolation:isolate}
+  .ground{position:absolute;inset:0;
+    background:
+      radial-gradient(1200px 620px at 50% 118%,rgba(120,120,255,.16),transparent 62%),
+      radial-gradient(900px 480px at 12% -8%,rgba(232,145,42,.13),transparent 66%),
+      #07080a}
+  .grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+    background-size:56px 56px;
+    -webkit-mask-image:radial-gradient(1000px 620px at 50% 46%,#000 18%,transparent 72%);
+    mask-image:radial-gradient(1000px 620px at 50% 46%,#000 18%,transparent 72%)}
+
+  /* ---------- head ---------- */
+  .head{position:absolute;left:88px;top:70px;width:1060px;z-index:5}
+  .chips{display:flex;gap:8px}
+  .chip{height:25px;display:inline-flex;align-items:center;gap:7px;padding:0 11px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:#c3cad4}
+  .chip.dot::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--amber)}
+  h1{font-size:54px;line-height:1;font-weight:600;letter-spacing:-.035em;margin-top:20px}
+  .sub{margin-top:14px;font-size:17.5px;line-height:1.5;color:var(--mute);max-width:790px}
+
+  /* ---------- window ---------- */
+  .win{position:absolute;left:88px;top:254px;width:1424px;height:602px;border-radius:14px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.13);background:#0b0d11;z-index:4;
+    box-shadow:0 60px 130px rgba(0,0,0,.78),0 0 0 1px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.10) inset}
+  .titlebar{height:36px;background:#111318;border-bottom:1px solid rgba(255,255,255,.07);
+    display:flex;align-items:center;gap:10px;padding:0 14px;font-family:var(--mono);font-size:11px;color:#79818d}
+  .titlebar .brand{color:#cbd2dc}
+  .titlebar .sep{width:1px;height:13px;background:rgba(255,255,255,.12)}
+  .titlebar .spacer{flex:1}
+  .titlebar .hint{color:#5b636e}
+
+  .term{height:529px;background:radial-gradient(900px 500px at 30% 0%,#0d1015,#090b0e 70%);
+    padding:22px 26px;font-family:var(--mono);font-size:13px;line-height:1.75;color:#8b939f;position:relative}
+  .term .p{color:#4d5561}
+  .term .ok{color:#4ea672}
+  .term .cursor{display:inline-block;width:7px;height:15px;background:#8b939f;vertical-align:-2px;
+    animation:none;opacity:.75}
+
+  /* the bar, docked at the bottom of the window */
+  .bar{height:37px;background:#12141a;border-top:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;gap:9px;padding:0 12px;font-family:var(--sans);font-size:12.5px}
+  .btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.13);background:#181b21;
+    display:grid;place-items:center;flex:none}
+  .btn svg{width:13px;height:13px;stroke:#b6bdc8;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .bar .div{width:1px;height:15px;background:rgba(255,255,255,.10);margin:0 3px}
+  .grp{display:flex;align-items:center;gap:6px;color:#aeb5c0}
+  .grp .mark{width:13px;height:13px;color:#d7dbe2;flex:none}
+  .grp .mark svg{width:13px;height:13px;display:block}
+  .grp b{color:#eef1f5;font-weight:600}
+  .grp i{font-style:normal;color:#6d7581;font-size:11.5px}
+  .dot{color:#4d5561;margin:0 5px}
+  .bar .spacer{flex:1}
+  .bar .chev{color:#5f6773;font-size:13px}
+
+  /* ---------- dialog ---------- */
+  .dlg{position:absolute;left:596px;top:378px;width:440px;background:#101216;border:1px solid #2b3038;
+    border-radius:11px;z-index:6;box-shadow:0 40px 80px rgba(0,0,0,.72),0 0 0 1px rgba(255,255,255,.04) inset;
+    font-size:11px;color:#b9c0cb}
+  .d-head{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;
+    border-bottom:1px solid #22262d}
+  .d-head b{font-size:12.5px;font-weight:600;color:#eef1f5}
+  .d-head span{font-size:10px;color:#6d7581;border:1px solid #2b3038;border-radius:5px;padding:2px 7px}
+  .sec{padding:11px 13px 0}
+  .sec h4{display:flex;align-items:baseline;gap:7px;font-size:12px;font-weight:600;color:#eef1f5}
+  .sec h4 em{font-style:normal;font-size:10px;font-weight:400;color:#6d7581}
+  .w{margin-top:9px}
+  .w .top{display:flex;align-items:baseline;justify-content:space-between}
+  .w .top b{font-size:11.5px;font-weight:600;color:#e3e7ed}
+  .w .top span{font-size:10.5px;color:#c3cad4}
+  .meter{height:3px;border-radius:2px;background:#232830;margin:5px 0 4px;position:relative;overflow:hidden}
+  .meter i{position:absolute;left:0;top:0;bottom:0;background:#6f8fd6;border-radius:2px}
+  .w .note{font-size:9.5px;color:#6d7581;line-height:1.5}
+  .d-sep{height:1px;background:#22262d;margin:12px 13px 0}
+  .d-foot{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;
+    font-size:10px;color:#6d7581}
+  .d-foot span{background:#1b1f26;border:1px solid #2b3038;border-radius:6px;padding:4px 10px;
+    color:#dfe3e9;font-size:10.5px}
+
+  /* ---------- foot ---------- */
+  .foot{position:absolute;left:88px;right:88px;top:906px;display:flex;align-items:flex-end;
+    justify-content:space-between;z-index:5}
+  .stats{display:flex;gap:8px}
+  .cmd{font-family:var(--mono);font-size:12px;line-height:1.6;color:#6f7783;text-align:right}
+  .cmd b{display:block;font-weight:400}
+  .cmd .url{color:#a9825a}
+</style>
+</head>
+<body>
+<div class="card" role="img" aria-label="Agent usage bar: OpenCode Go and Claude plan usage in Herdr's bottom bar, with the detail dialog open">
+  <div class="ground"></div>
+  <div class="grid"></div>
+
+  <div class="head">
+    <div class="chips">
+      <span class="chip dot">Herdr mod</span>
+      <span class="chip">Bottom bar · dialog</span>
+    </div>
+    <h1>Agent usage bar</h1>
+    <p class="sub">How much of each plan is spent, in one thin bar at the bottom of the window:
+      OpenCode Go's five-hour window, its week and its month, next to whatever the Claude Code
+      session on this machine reports.</p>
+  </div>
+
+  <div class="win">
+    <div class="titlebar">
+      <span class="brand">herdr-app</span><span class="sep"></span>
+      <span>space: research</span><span class="spacer"></span>
+      <span class="hint">opencode-usage · reads on open</span>
+    </div>
+
+    <div class="term">
+      <div><span class="p">❯</span> cd ~/.config/herdr-app/mods</div>
+      <div><span class="p">❯</span> ls</div>
+      <div>opencode-usage&nbsp;&nbsp;opencode-usage-detail</div>
+      <div><span class="p">❯</span> herdr-app check opencode-usage</div>
+      <div class="ok">check passed</div>
+      <div><span class="p">❯</span> herdr-app check opencode-usage-detail</div>
+      <div class="ok">check passed</div>
+      <div><span class="p">❯</span> <span class="cursor"></span></div>
+    </div>
+
+    <div class="bar">
+      <span class="btn"><svg viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4.5-5.5"/></svg></span>
+      <span class="btn"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg></span>
+      <span class="div"></span>
+      <span class="grp">
+        <span class="mark"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5"/><path d="M8 16V8h8" stroke="#0b0d11" stroke-width="2.6" fill="none" stroke-linecap="square"/></svg></span>
+        5h <b>1%</b> <i>(4h 37m)</i>
+      </span>
+      <span class="dot">·</span>
+      <span class="grp">
+        <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg></span>
+        month <b>$0.00</b> <i>of $150.00 (0%)</i>
+      </span>
+      <span class="spacer"></span>
+      <span class="chev">»</span>
+    </div>
+  </div>
+
+  <div class="dlg">
+    <div class="d-head"><b>Usage</b><span>Esc</span></div>
+
+    <div class="sec">
+      <h4>OpenCode <em>plan go</em></h4>
+      <div class="w">
+        <div class="top"><b>5h</b><span>1%</span></div>
+        <div class="meter"><i style="width:4%"></i></div>
+        <div class="note">$0.12 of $12.00 · resets 11:19:46 PM (4h 37m)</div>
+      </div>
+      <div class="w">
+        <div class="top"><b>week</b><span>&lt;1%</span></div>
+        <div class="meter"><i style="width:3%"></i></div>
+        <div class="note">$0.28 of $30.00 · resets 06:00:00 PM (5d 23h)</div>
+      </div>
+      <div class="w">
+        <div class="top"><b>month</b><span>21%</span></div>
+        <div class="meter"><i style="width:21%"></i></div>
+        <div class="note">$12.50 of $60.00 · resets 09:15:07 AM (9d 14h)</div>
+        <div class="note" style="margin-top:4px">Paid period ends 11/12/2026, 09:15:07 AM · 9d 14h left</div>
+      </div>
+    </div>
+
+    <div class="d-sep"></div>
+
+    <div class="sec">
+      <h4>Claude <em>enterprise</em></h4>
+      <div class="w">
+        <div class="top"><b>month</b><span>0%</span></div>
+        <div class="meter"></div>
+        <div class="note">$0.00 of $150.00</div>
+      </div>
+    </div>
+
+    <div class="d-foot"><span>read 06:42:07 PM</span><span>Refresh</span></div>
+  </div>
+
+  <div class="foot">
+    <div class="stats">
+      <span class="chip">OpenCode Go · Claude</span>
+      <span class="chip">Percentages or dollars</span>
+      <span class="chip">Nothing estimated</span>
+    </div>
+    <div class="cmd">
+      <b>Read ~/.config/herdr-app/AGENTS.md, then add this mod:</b>
+      <b class="url">herdr.dev/mods/Abrahamism/herdr-opencode-go-usage</b>
+    </div>
+  </div>
+</div>
+</body>
+</html>

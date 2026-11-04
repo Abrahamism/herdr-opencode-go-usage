@@ -9,7 +9,7 @@ the gauge opens a dialog with the details behind each number.
 
 **Version 0.2.0** · every change is listed in [CHANGELOG.md](CHANGELOG.md).
 
-![The bar with both providers, and the detail dialog](card-0.3.0.png)
+![The bar with both providers, and the detail dialog](preview.png)
 
 Nothing here is estimated: the OpenCode numbers are the plan's own meters, and
 the Claude numbers come from the same usage endpoint Claude Code's `/usage` view

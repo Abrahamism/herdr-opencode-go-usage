@@ -8,7 +8,7 @@ bills by use. The bar opens compact (one window per provider) and a click on the
 numbers shows every window; a gauge icon opens a dialog with the details. Nothing
 is estimated: the numbers are the providers' own meters.
 
-![Agent usage bar](card-0.3.0.png)
+![Agent usage bar](preview.png)
 
 ## What you see
 
